@@ -1,6 +1,5 @@
-import imp
-from multiprocessing import context
-from multiprocessing.spawn import import_main_path
+
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 # Create your views here.
@@ -9,10 +8,8 @@ from .models import Poll
 
 
 def home(request):
-    # Solicitamos todos los ojetos de la clase Poll y los guardamos 
+    # Solicitamos todos los ojetos de la clase Poll  
     polls = Poll.objects.all()
-    print('cadena de prueba')
-    print(polls)
     # Creamos el contexto con los objetos Poll
     context = {
         'polls':  polls
@@ -46,10 +43,48 @@ def create(request):
 
 
 def vote(request, poll_id):
-    context = {}
-    return render(request, 'pages/vote.html',  context)
+    # Solicitamos un ojeto Poll por medio de su ID 
+    poll = Poll.objects.get(pk= poll_id)
+
+     # Validar si el metodo Http es POST
+    if request.method == 'POST':
+
+         # selecionar el campo del metodo Post
+        selected_option = request.POST['poll']
+
+         # Validar el valor del campo selecionado
+        if selected_option == 'option1':
+            poll.option_one_count += 1
+
+        elif selected_option == 'option2':
+             poll.option_two_count += 1
+
+
+        elif selected_option == 'option3':
+             poll.option_three_count += 1
+
+        else:
+            return HttpResponse(400, 'Invalid form option' )
+        
+
+        poll.save()
+
+        return redirect('results', poll_id)
+
+
+    
+    context = {
+        'poll': poll
+    }
+    
+    
+    return render(request, 'poll/vote.html',  context)
 
 
 def results(request,  poll_id ):
-    context = {}
-    return render(request, 'pages/vote.html',  context)
+    # Solicitamos un ojeto Poll por medio de su ID 
+    poll = Poll.objects.get(pk= poll_id)
+    context = {
+        'poll' : poll
+    }
+    return render(request, 'poll/results.html',  context)
