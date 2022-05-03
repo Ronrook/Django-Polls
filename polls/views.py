@@ -4,15 +4,18 @@ from django.shortcuts import render, redirect
 
 # Create your views here.
 from .forms import CreatePollForm
-from .models import Poll
+from .models import Poll, Choice
 
 
 def home(request):
     # Solicitamos todos los ojetos de la clase Poll  
     polls = Poll.objects.all()
+    choices = Choice.objects.all()
     # Creamos el contexto con los objetos Poll
+    
     context = {
-        'polls':  polls
+        'polls': polls,
+        'choices': choices
     }
     #Retornamos la vista Home y le enviamos el contexto
     return render(request, 'pages/home.html', context)
